@@ -1,0 +1,114 @@
+import wquantiles
+from matplotlib.cbook import violin_stats
+import matplotlib.pyplot as plt
+from scipy import stats
+import statsmodels.api as sm
+import numpy as np
+from matplotlib.ticker import EngFormatter, PercentFormatter
+import datetime
+
+
+def vdensity_with_weights(weights):
+    ''' Outer function allows innder function access to weights. Matplotlib
+    needs function to take in data and coords, so this seems like only way
+    to 'pass' custom density function a set of weights '''
+
+    def vdensity(data, coords):
+        ''' Custom matplotlib weighted violin stats function '''
+        # Using weights from closure, get KDE fomr statsmodels
+        weighted_cost = sm.nonparametric.KDEUnivariate(data)
+        weighted_cost.fit(fft=False, weights=weights)
+
+        # Return y-values for graph of KDE by evaluating on coords
+        return weighted_cost.evaluate(coords)
+    return vdensity
+
+def custom_violin_stats(data, weights):
+    # Get wquantiles median and mean (using wquantiles module for median)
+    median = wquantiles.quantile_1D(data, weights, 0.5)
+    mean, sumw = np.ma.average(data, weights=list(weights), returned=True)
+
+    # Use matplotlib violin_stats, which expects a function that takes in data and coords
+    # which we get from closure above
+    results = violin_stats(data, vdensity_with_weights(weights))
+
+    # Update result dictionary with our updated info
+    results[0][u"mean"] = mean
+    results[0][u"median"] = median
+
+    # No need to do this, since it should be populated from violin_stats
+    # results[0][u"min"] =  np.min(data)
+    # results[0][u"max"] =  np.max(data)
+
+    return results
+
+def set_axis_style(ax, labels):
+    ax.get_xaxis().set_tick_params(direction='out')
+    ax.xaxis.set_ticks_position('bottom')
+    ax.set_xticks(np.arange(1, len(labels) + 1))
+    ax.set_xticklabels(labels)
+    ax.set_xlim(0.25, len(labels) + 0.75)
+    #ax.set_xlabel('Sample name')
+
+def graph_series(xs,ws,ts):
+    d = datetime.date(2020, 3, 29)
+    fig, ax = plt.subplots(figsize=(16,8))
+    count = 1
+    for x,w,t in zip(xs,ws,ts):
+        vpstats = custom_violin_stats(x, w)
+        vplot = ax.violin(vpstats, [count], vert=True, showmeans=True, showextrema=True,
+                      showmedians=True)
+        count += 1
+    dates = [d + datetime.timedelta(days=t) for t in ts]
+    labels = [new_d.strftime("%d/%m/%Y") for new_d in dates]
+    set_axis_style(ax, labels)
+    #ax.set_yscale("log")
+    ax.yaxis.set_major_formatter(EngFormatter())
+    #ax.set_ylim(-10,3000)
+    ax.set_title("Série da quantidade de mortos")
+    return
+
+def graph_rt(xs,ws,ts):
+    d = datetime.date(2020, 3, 29)
+    fig, ax = plt.subplots(figsize=(16,8))
+    count = 1
+    for x,w in zip(xs,ws):
+        vpstats = custom_violin_stats(x, w)
+        vplot = ax.violin(vpstats, [count], vert=True, showmeans=True, showextrema=True,
+                      showmedians=True)
+        count += 1
+    dates = [d + datetime.timedelta(days=t) for t in ts]
+    labels = [new_d.strftime("%d/%m/%Y") for new_d in dates]
+    ax.plot(range(0,len(dates)+2),[1 for i in range(0,len(dates)+2)], "k--", alpha=.5)
+    set_axis_style(ax, labels)
+    ax.set_title("Série de Rt")
+    return
+
+def graph_deaths(xs,ws,ts, day, labels, x_label, reversed = True):
+    d = datetime.date(2020, 3, 29)
+    fig, ax = plt.subplots(figsize=(16,8))
+    if reversed:
+        count = len(ts)
+    else:
+        count = 1
+    for x,w in zip(xs,ws):
+        vpstats = custom_violin_stats(x, w)
+        vplot = ax.violin(vpstats, [count], vert=True, showmeans=True, showextrema=True,
+                      showmedians=True)
+        if reversed:
+            count -= 1
+        else:
+            count += 1
+    if reversed:
+        labels = labels[::-1]
+
+    set_axis_style(ax, labels)
+    #ax.set_yscale("log")
+    ax.yaxis.set_major_formatter(EngFormatter())
+    new_d = d + datetime.timedelta(days=day)
+    ax.set_title('Número de mortes até o dia ' + new_d.strftime("%d/%m/%Y"))
+    ax.set_xlabel(x_label)
+    ax.set_ylabel('Número de mortes')
+    #ax.grid()
+    plt.subplots_adjust(bottom=0.15, wspace=5)
+    return
