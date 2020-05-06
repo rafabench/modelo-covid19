@@ -65,7 +65,7 @@ function pp_p_ci(p_ci)
     """)
 end
 
-p_start = [1e-7, 0.1, 0.6, 0.94, 1/30, 0.3, 7.0];
+p_start = [1e-7, 0.1, 0.6, 0.88, 1/30, 0.3, 7.0];
 
 function loss(sol_)
     v = sol_[9,:]
