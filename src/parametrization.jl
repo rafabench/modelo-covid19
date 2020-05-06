@@ -45,6 +45,10 @@ function Rt(sol,p)
     p[1]*(p[2]*(1-p[6])/(p[7]+p[8])+p[6]/(p[9]+p[10]+p[11]))*sol[1,:]
 end
 
+function dRt(sol,p)
+    p[1]*(p[2]*(1-p[6])/(p[7]+p[8])+p[6]/(p[9]+p[10]+p[11]))*((-p[1]*sol[1,:]).*(sol[5,:] .+ p[2] .* sol[4,:]) .- p[3] .* sol[1,:] .+ p[4] .* sol[2,:])
+end
+
 function pp_p_ci(p_ci)
     full_ci, p = build_p_ci(p_ci)
     print("""População em quarentena = $(full_ci[2]) = $(100*full_ci[2]/6718903) %
