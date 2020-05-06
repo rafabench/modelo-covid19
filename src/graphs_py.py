@@ -1,12 +1,46 @@
 import wquantiles
 from matplotlib.cbook import violin_stats
+import matplotlib.dates as mdates
 import matplotlib.pyplot as plt
 from scipy import stats
 import statsmodels.api as sm
 import numpy as np
 from matplotlib.ticker import EngFormatter, PercentFormatter
-import datetime
+import datetime as dt
 
+def plot_daily(serie, data, real_data = True, ax = None, label = "Modelo", blur = 1.0, cor_dados = "x-"):
+    n_pts = len(serie)
+    start = dt.datetime.strptime("29-03-2020", "%d-%m-%Y")
+    then = start + dt.timedelta(days=n_pts-1)
+    days = mdates.drange(start,then,dt.timedelta(days=1))
+    if ax == None:
+        ax = plt.gca()
+    ax.plot(days, serie[1:] - serie[:-1], label=label, alpha = blur)
+    if real_data:
+        ax.plot(days, data, cor_dados, label="Dados")
+    ax.grid()
+    ax.set_xlabel("Dias")
+    ax.yaxis.set_major_formatter(EngFormatter())
+    ax.legend()
+    ax.xaxis.set_major_formatter(mdates.DateFormatter("%d/%m"))
+
+def plot_accum(serie, data, real_data = True, ax = None, m_label = "Modelo", blur = 1.0, cor_dados = 'x-', eng_fmt = True):
+    n_pts = len(serie)
+    start = dt.datetime.strptime("29-03-2020", "%d-%m-%Y")
+    then = start + dt.timedelta(days=n_pts)
+    days = mdates.drange(start,then,dt.timedelta(days=1))
+    if ax == None:
+        ax = plt.gca()
+    ax.plot(days, serie, label = m_label, alpha = blur)
+    if real_data:
+        ax.plot(days, data, cor_dados, label="Dados")
+    ax.grid()
+    ax.set_xlabel("Dias")
+    if eng_fmt:
+        ax.yaxis.set_major_formatter(EngFormatter())
+    ax.legend()
+    ax.xaxis.set_major_formatter(mdates.DateFormatter("%d/%m"))
+    return
 
 def vdensity_with_weights(weights):
     ''' Outer function allows innder function access to weights. Matplotlib
@@ -48,10 +82,9 @@ def set_axis_style(ax, labels):
     ax.set_xticks(np.arange(1, len(labels) + 1))
     ax.set_xticklabels(labels)
     ax.set_xlim(0.25, len(labels) + 0.75)
-    #ax.set_xlabel('Sample name')
 
 def graph_series(xs,ws,ts):
-    d = datetime.date(2020, 3, 29)
+    d = dt.date(2020, 3, 29)
     fig, ax = plt.subplots(figsize=(16,8))
     count = 1
     for x,w,t in zip(xs,ws,ts):
@@ -59,7 +92,7 @@ def graph_series(xs,ws,ts):
         vplot = ax.violin(vpstats, [count], vert=True, showmeans=True, showextrema=True,
                       showmedians=True)
         count += 1
-    dates = [d + datetime.timedelta(days=t) for t in ts]
+    dates = [d + dt.timedelta(days=t) for t in ts]
     labels = [new_d.strftime("%d/%m/%Y") for new_d in dates]
     set_axis_style(ax, labels)
     #ax.set_yscale("log")
@@ -69,7 +102,7 @@ def graph_series(xs,ws,ts):
     return
 
 def graph_rt(xs,ws,ts):
-    d = datetime.date(2020, 3, 29)
+    d = dt.date(2020, 3, 29)
     fig, ax = plt.subplots(figsize=(16,8))
     count = 1
     for x,w in zip(xs,ws):
@@ -77,7 +110,7 @@ def graph_rt(xs,ws,ts):
         vplot = ax.violin(vpstats, [count], vert=True, showmeans=True, showextrema=True,
                       showmedians=True)
         count += 1
-    dates = [d + datetime.timedelta(days=t) for t in ts]
+    dates = [d + dt.timedelta(days=t) for t in ts]
     labels = [new_d.strftime("%d/%m/%Y") for new_d in dates]
     ax.plot(range(0,len(dates)+2),[1 for i in range(0,len(dates)+2)], "k--", alpha=.5)
     set_axis_style(ax, labels)
@@ -85,7 +118,7 @@ def graph_rt(xs,ws,ts):
     return
 
 def graph_deaths(xs,ws,ts, day, labels, x_label, reversed = True):
-    d = datetime.date(2020, 3, 29)
+    d = dt.date(2020, 3, 29)
     fig, ax = plt.subplots(figsize=(16,8))
     if reversed:
         count = len(ts)
@@ -105,7 +138,7 @@ def graph_deaths(xs,ws,ts, day, labels, x_label, reversed = True):
     set_axis_style(ax, labels)
     #ax.set_yscale("log")
     ax.yaxis.set_major_formatter(EngFormatter())
-    new_d = d + datetime.timedelta(days=day)
+    new_d = d + dt.timedelta(days=day)
     ax.set_title('Número de mortes até o dia ' + new_d.strftime("%d/%m/%Y"))
     ax.set_xlabel(x_label)
     ax.set_ylabel('Número de mortes')
