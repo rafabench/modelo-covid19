@@ -8,37 +8,39 @@ import numpy as np
 from matplotlib.ticker import EngFormatter, PercentFormatter
 import datetime as dt
 
-def plot_daily(serie, data, real_data = True, ax = None, label = "Modelo", blur = 1.0, cor_dados = "x-"):
+def plot_daily(serie, data, real_data = True, ax = None, label = "Modelo", blur = 1.0, cor_serie = "C0" ,cor_dados = "C1x-", legend = True):
     n_pts = len(serie)
     start = dt.datetime.strptime("29-03-2020", "%d-%m-%Y")
     then = start + dt.timedelta(days=n_pts-1)
     days = mdates.drange(start,then,dt.timedelta(days=1))
     if ax == None:
         ax = plt.gca()
-    ax.plot(days, serie[1:] - serie[:-1], label=label, alpha = blur)
+    ax.plot(days, serie[1:] - serie[:-1], cor_serie, label=label, alpha = blur)
     if real_data:
-        ax.plot(days, data, cor_dados, label="Dados")
+        ax.plot(days, data, cor_dados)
     ax.grid()
     ax.set_xlabel("Dias")
     ax.yaxis.set_major_formatter(EngFormatter())
-    ax.legend()
+    if legend:
+        ax.legend()
     ax.xaxis.set_major_formatter(mdates.DateFormatter("%d/%m"))
 
-def plot_accum(serie, data, real_data = True, ax = None, m_label = "Modelo", blur = 1.0, cor_dados = 'x-', eng_fmt = True):
+def plot_accum(serie, data, real_data = True, ax = None, label = "Modelo", blur = 1.0, cor_serie = "C0", cor_dados = 'C1x-', eng_fmt = True, legend = True):
     n_pts = len(serie)
     start = dt.datetime.strptime("29-03-2020", "%d-%m-%Y")
     then = start + dt.timedelta(days=n_pts)
     days = mdates.drange(start,then,dt.timedelta(days=1))
     if ax == None:
         ax = plt.gca()
-    ax.plot(days, serie, label = m_label, alpha = blur)
+    ax.plot(days, serie, cor_serie, label = label, alpha = blur)
     if real_data:
         ax.plot(days, data, cor_dados, label="Dados")
     ax.grid()
     ax.set_xlabel("Dias")
     if eng_fmt:
         ax.yaxis.set_major_formatter(EngFormatter())
-    ax.legend()
+    if legend:
+        ax.legend()
     ax.xaxis.set_major_formatter(mdates.DateFormatter("%d/%m"))
     return
 
@@ -83,11 +85,12 @@ def set_axis_style(ax, labels):
     ax.set_xticklabels(labels)
     ax.set_xlim(0.25, len(labels) + 0.75)
 
-def graph_series(xs,ws,ts):
+def graph_series(xs,ws,ts, ax = None):
     d = dt.date(2020, 3, 29)
-    fig, ax = plt.subplots(figsize=(16,8))
+    if ax == None:
+        ax = plt.gca()
     count = 1
-    for x,w,t in zip(xs,ws,ts):
+    for x,w in zip(xs,ws):
         vpstats = custom_violin_stats(x, w)
         vplot = ax.violin(vpstats, [count], vert=True, showmeans=True, showextrema=True,
                       showmedians=True)
@@ -95,10 +98,7 @@ def graph_series(xs,ws,ts):
     dates = [d + dt.timedelta(days=t) for t in ts]
     labels = [new_d.strftime("%d/%m/%Y") for new_d in dates]
     set_axis_style(ax, labels)
-    #ax.set_yscale("log")
     ax.yaxis.set_major_formatter(EngFormatter())
-    #ax.set_ylim(-10,3000)
-    ax.set_title("Série da quantidade de mortos")
     return
 
 def graph_rt(xs,ws,ts):
@@ -112,9 +112,9 @@ def graph_rt(xs,ws,ts):
         count += 1
     dates = [d + dt.timedelta(days=t) for t in ts]
     labels = [new_d.strftime("%d/%m/%Y") for new_d in dates]
-    ax.plot(range(0,len(dates)+2),[1 for i in range(0,len(dates)+2)], "k--", alpha=.5)
+    ax.plot(range(0,len(ts)+2),[1 for i in range(0,len(ts)+2)], "k--", alpha=.5)
     set_axis_style(ax, labels)
-    ax.set_title("Série de Rt")
+    ax.set_title("Série da taxa básica de reprodução")
     return
 
 def graph_deaths(xs,ws,ts, day, labels, x_label, reversed = True):

@@ -29,7 +29,6 @@ function model(params, CI, ts)
     u0 = CI
     p = params
     prob = ODEProblem(g, CI_Rio, [0.0, ts[end]], params_rio_base)
-    sol = Array(concrete_solve(prob, Feagin14(), CI_Rio, params_rio_base, saveat=ts));
     tmp_prob = remake(prob,u0=u0,p=p)
     sol = solve(tmp_prob,Feagin14(),abstol=1e-14,reltol=1e-14,saveat=ts);
 end

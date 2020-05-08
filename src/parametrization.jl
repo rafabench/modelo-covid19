@@ -1,4 +1,9 @@
 using Random
+using GlobalSensitivityAnalysis
+using Distributions
+using DataStructures
+
+Random.seed!(1);
 
 function build_p_ci(p_ci)
     # Parameters
@@ -65,7 +70,7 @@ function pp_p_ci(p_ci)
     """)
 end
 
-p_start = [1e-7, 0.1, 0.6, 0.88, 1/30, 0.3, 7.0];
+p_start = [1e-7, 0.1, 0.6, 0.94, 1/30, 0.3, 7.0];
 
 function loss(sol_)
     v = sol_[9,:]
@@ -163,14 +168,34 @@ function param_range(possibilities)
     return arr_poss
 end
 
+function param_range_uq(samples)
+    arr_poss = []
+    for idxs in eachrow(samples)
+        full_ci, p = build_p_ci(idxs)
+        poss_dict = Dict(
+            "taxa_contagio" => p[1],
+            "fator_assint" => p[2],
+            "quarentena" => (100*p[3]/(p[3] + p[4])),
+            "prop_sint" => p[6],
+            "taxa_teste_a" => 1/p[7],
+            "taxa_teste_i" => 1/p[9]
+        )
+        push!(arr_poss, [full_ci,p,poss_dict])
+    end
+    return arr_poss
+end
+
 likelihood(res; σ=1.0) = exp(-loss(res)/(2*σ))
 
-function prob_adjust(model, prior_param_prob, likelihood, param_range; ts = 1.0:1.0:200.0)
+function prob_adjust(model, prior_param_prob, likelihood, param_range; ts = 1.0:1.0:200.0, tol = 0)
     all_results = []
     for poss in param_range
         CI, p, poss_dict = poss[1], poss[2], poss[3]
         res = model(p, CI, ts)
         bayes_rule = prior_param_prob(p, CI) * likelihood(res)
+        if bayes_rule < tol
+            continue
+        end
         push!(all_results, (Dict("res" => res, "p" => p, "CI" => CI, "poss" => poss_dict), bayes_rule))
     end
     all_results
@@ -182,8 +207,26 @@ function build_random_samples(possibilities; n_samples = 2000)
     Random.rand(1:N, n_samples);
 end
 
+function build_series_subnot_infec(series, idxs, ts)
+    xs = [[series[j][1]["res"](t)[5]/series[j][1]["res"](t)[7] for j in idxs] for t in ts]
+    ws = [[series[j][2] for j in idxs] for t in ts]
+    return xs, ws
+end
+
+function build_series_subnot_assint(series, idxs, ts)
+    xs = [[series[j][1]["res"](t)[4]/series[j][1]["res"](t)[6] for j in idxs] for t in ts]
+    ws = [[series[j][2] for j in idxs] for t in ts]
+    return xs, ws
+end
+
 function build_series(series, idxs, ts; index = 10)
     xs = [[series[j][1]["res"](t)[index] for j in idxs] for t in ts]
+    ws = [[series[j][2] for j in idxs] for t in ts]
+    return xs, ws
+end
+
+function build_series_daily(series, idxs, ts; index = 10)
+    xs = [[series[j][1]["res"](t)[index]-series[j][1]["res"](t-1)[index] for j in idxs] for t in ts]
     ws = [[series[j][2] for j in idxs] for t in ts]
     return xs, ws
 end
