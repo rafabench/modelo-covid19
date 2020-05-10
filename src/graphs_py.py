@@ -8,6 +8,18 @@ import numpy as np
 from matplotlib.ticker import EngFormatter, PercentFormatter
 import datetime as dt
 
+def preliminar(ax=None, pad=0.3):
+    if ax is None:
+        ax = plt.gca()
+    plt.text(0.5, 0.6, "preliminar",
+             alpha=0.2, size=50,
+             ha="center", va="top", transform=ax.transAxes,
+             bbox=dict(boxstyle="square", pad=pad,
+                       ec=(1., 0.8, 0.8, 0.2),
+                       fc=(1., 0.8, 0.8, 0.2),
+                       )
+            )
+            
 def plot_daily(serie, data, real_data = True, ax = None, label = "Modelo", blur = 1.0, cor_serie = "C0" ,cor_dados = "C1x-", legend = True, cut_day = None):
     n_pts = len(serie)
     start = dt.datetime.strptime("29-03-2020", "%d-%m-%Y")
