@@ -8,7 +8,7 @@ import numpy as np
 from matplotlib.ticker import EngFormatter, PercentFormatter
 import datetime as dt
 
-def plot_daily(serie, data, real_data = True, ax = None, label = "Modelo", blur = 1.0, cor_serie = "C0" ,cor_dados = "C1x-", legend = True):
+def plot_daily(serie, data, real_data = True, ax = None, label = "Modelo", blur = 1.0, cor_serie = "C0" ,cor_dados = "C1x-", legend = True, cut_day = None):
     n_pts = len(serie)
     start = dt.datetime.strptime("29-03-2020", "%d-%m-%Y")
     then = start + dt.timedelta(days=n_pts-1)
@@ -16,16 +16,19 @@ def plot_daily(serie, data, real_data = True, ax = None, label = "Modelo", blur 
     if ax == None:
         ax = plt.gca()
     ax.plot(days, serie[1:] - serie[:-1], cor_serie, label=label, alpha = blur)
+    if cut_day != None:
+        new_cut_day = start + dt.timedelta(days=cut_day)
+        ax.axvline(x=new_cut_day, color="grey", linestyle="--")
     if real_data:
         ax.plot(days, data, cor_dados)
     ax.grid()
     ax.set_xlabel("Dias")
     ax.yaxis.set_major_formatter(EngFormatter())
     if legend:
-        ax.legend()
+        ax.legend(loc = 1)
     ax.xaxis.set_major_formatter(mdates.DateFormatter("%d/%m"))
 
-def plot_accum(serie, data, real_data = True, ax = None, label = "Modelo", blur = 1.0, cor_serie = "C0", cor_dados = 'C1x-', eng_fmt = True, legend = True):
+def plot_accum(serie, data, real_data = True, ax = None, label = "Modelo", blur = 1.0, cor_serie = "C0", cor_dados = 'C1x-', eng_fmt = True, legend = True, cut_day = None):
     n_pts = len(serie)
     start = dt.datetime.strptime("29-03-2020", "%d-%m-%Y")
     then = start + dt.timedelta(days=n_pts)
@@ -33,6 +36,9 @@ def plot_accum(serie, data, real_data = True, ax = None, label = "Modelo", blur 
     if ax == None:
         ax = plt.gca()
     ax.plot(days, serie, cor_serie, label = label, alpha = blur)
+    if cut_day != None:
+        new_cut_day = start + dt.timedelta(days=cut_day)
+        ax.axvline(x=new_cut_day, color="grey", linestyle="--")
     if real_data:
         ax.plot(days, data, cor_dados, label="Dados")
     ax.grid()
@@ -41,6 +47,8 @@ def plot_accum(serie, data, real_data = True, ax = None, label = "Modelo", blur 
         ax.yaxis.set_major_formatter(EngFormatter())
     if legend:
         ax.legend()
+    
+    
     ax.xaxis.set_major_formatter(mdates.DateFormatter("%d/%m"))
     return
 

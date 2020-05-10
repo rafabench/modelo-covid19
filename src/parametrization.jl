@@ -70,7 +70,7 @@ function pp_p_ci(p_ci)
     """)
 end
 
-p_start = [1e-7, 0.1, 0.6, 0.94, 1/30, 0.3, 7.0];
+p_start = [1e-7, 0.1, 0.6, 0.88, 1/30, 0.3, 7.0];
 
 function loss(sol_)
     v = sol_[9,:]
@@ -91,13 +91,13 @@ function loss_obj(p_ci)
 end
 
 function build_params_variations(res)
-    min_arrs = [[res.minimizer[1] * taxa for taxa in collect(0.9:0.05:1.1)], # Beta
+    min_arrs = [[res.minimizer[1] * taxa for taxa in collect(0.7:0.05:1.3)], # Beta
             [res.minimizer[2]], # Fator assintomatico
             [res.minimizer[3] + x for x in collect(-0.2:0.02:0.2)], # Quarentena
             [res.minimizer[4]], # Prop sintomatica
-            [1/(1/res.minimizer[5] + x) for x in collect(-10:2:10)], 
+            [1/(1/res.minimizer[5] + x) for x in collect(-20:2:20)], 
             [res.minimizer[6]],
-            [res.minimizer[7]*taxa for taxa in collect(0.8:0.1:1.2)],
+            [res.minimizer[7]*taxa for taxa in collect(0.5:0.5:2.0)],
     ];
 end
 

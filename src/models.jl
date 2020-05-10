@@ -28,7 +28,19 @@ CI_Rio = [sucetiveis; 0.6*popRio; 7.0*498.0 ; 8.0*498.0;    8.0*498.0;  0.1*498.
 function model(params, CI, ts)
     u0 = CI
     p = params
-    prob = ODEProblem(g, CI_Rio, [0.0, ts[end]], params_rio_base)
-    tmp_prob = remake(prob,u0=u0,p=p)
+    prob = ODEProblem(g, u0, [ts[1], ts[end]], p)
+    tmp_prob = remake(prob, u0 = u0, tspan = [ts[1], ts[end]], p = p)
     sol = solve(tmp_prob,Feagin14(),abstol=1e-14,reltol=1e-14,saveat=ts);
+end
+
+function piecewise_model(params, CI, ts, cut_at, new_params)
+    u0 = CI
+    p = params
+    ts_new = cut_at[1]+1.0:1.0:ts[end]
+    ts = ts[1]:1.0:cut_at[1]
+    prob = ODEProblem(g, u0, [ts[1], ts[end]], p)
+    sol = solve(prob,Feagin14(),abstol=1e-14,reltol=1e-14,saveat=ts);
+    tmp_prob = remake(prob, u0 = sol[end], tspan = [ts_new[1], ts_new[end]], p=new_params)
+    sol_1 = solve(tmp_prob,Feagin14(),abstol=1e-14,reltol=1e-14,saveat=ts_new);
+    return hcat(hcat(sol.u[1:end-1]...),hcat(sol_1.u...))
 end
