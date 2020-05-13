@@ -1,3 +1,5 @@
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/rafabench/modelo-covid19/master)
+
 # Modelagem Matemática do COVID-19
 
 Grupo composto por alunos do Instituto de Matemática da UFRJ, com orientação de professores, com o objetivo de modelar a disseminação do Covid-19  na cidade do Rio de Janeiro.
