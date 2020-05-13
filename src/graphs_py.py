@@ -20,7 +20,7 @@ def preliminar(ax=None, pad=0.3):
                        )
             )
             
-def plot_daily(serie, data, real_data = True, ax = None, label = "Modelo", blur = 1.0, cor_serie = "C0" ,cor_dados = "C1x-", legend = True, cut_day = None):
+def plot_daily(serie, data, real_data = True, ax = None, label = "Modelo", blur = 1.0, cor_serie = "C0" ,cor_dados = "C1x-", legend = True, cut_day = None, loc = 1):
     n_pts = len(serie)
     start = dt.datetime.strptime("29-03-2020", "%d-%m-%Y")
     then = start + dt.timedelta(days=n_pts-1)
@@ -37,10 +37,10 @@ def plot_daily(serie, data, real_data = True, ax = None, label = "Modelo", blur 
     ax.set_xlabel("Dias")
     ax.yaxis.set_major_formatter(EngFormatter())
     if legend:
-        ax.legend(loc = 1)
+        ax.legend(loc = loc)
     ax.xaxis.set_major_formatter(mdates.DateFormatter("%d/%m"))
 
-def plot_accum(serie, data, real_data = True, ax = None, label = "Modelo", blur = 1.0, cor_serie = "C0", cor_dados = 'C1x-', eng_fmt = True, legend = True, cut_day = None):
+def plot_accum(serie, data, real_data = True, ax = None, label = "Modelo", blur = 1.0, cor_serie = "C0", cor_dados = 'C1x-', eng_fmt = True, legend = True, cut_day = None, loc = 1):
     n_pts = len(serie)
     start = dt.datetime.strptime("29-03-2020", "%d-%m-%Y")
     then = start + dt.timedelta(days=n_pts)
@@ -58,7 +58,7 @@ def plot_accum(serie, data, real_data = True, ax = None, label = "Modelo", blur 
     if eng_fmt:
         ax.yaxis.set_major_formatter(EngFormatter())
     if legend:
-        ax.legend()
+        ax.legend(loc = loc)
     
     
     ax.xaxis.set_major_formatter(mdates.DateFormatter("%d/%m"))
