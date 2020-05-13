@@ -1,0 +1,14 @@
+name: covid19
+channels:
+  - conda-forge
+dependencies:
+  - python
+  - numpy
+  - scipy
+  - statsmodels
+  - pip
+  - pip:
+    - matplotlib
+    - celluloid
+    - datetime
+    - wquantiles
