@@ -20,6 +20,6 @@ Os resultados podem ser vistos no notebook Higher Order Bayes rules for ODEs.
 
 # Referências
 
-- ![[1] Jia et. al., 2020](https://arxiv.org/abs/2003.02985)
-- ![[2] DiffEqFlux.jl](https://arxiv.org/abs/1902.02376)
-- ![[3] DifferentialEquations.jl](https://zenodo.org/record/3740780#.XrGHlahKiUk)
+- [[1] Jia et. al., 2020](https://arxiv.org/abs/2003.02985)
+- [[2] DiffEqFlux.jl](https://arxiv.org/abs/1902.02376)
+- [[3] DifferentialEquations.jl](https://zenodo.org/record/3740780#.XrGHlahKiUk)
